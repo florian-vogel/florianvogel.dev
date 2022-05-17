@@ -1,0 +1,8 @@
+{
+  "$schema": "./node_modules/nx/schemas/workspace-schema.json",
+  "version": 2,
+  "projects": {
+    "pomodoro": "apps/pomodoro",
+    "pomodoro-e2e": "apps/pomodoro-e2e"
+  }
+}
