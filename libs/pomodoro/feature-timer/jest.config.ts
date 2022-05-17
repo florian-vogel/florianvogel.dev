@@ -1,7 +1,7 @@
 /* eslint-disable */
 export default {
-  displayName: 'libs-pomodoro-feature-timer',
-  preset: '../../../../jest.preset.js',
+  displayName: 'pomodoro-feature-timer',
+  preset: '../../../jest.preset.js',
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
   globals: {
     'ts-jest': {
@@ -9,7 +9,7 @@ export default {
       stringifyContentPathRegex: '\\.(html|svg)$',
     },
   },
-  coverageDirectory: '../../../../coverage/libs/libs/pomodoro/feature-timer',
+  coverageDirectory: '../../../coverage/libs/pomodoro/feature-timer',
   transform: {
     '^.+\\.(ts|mjs|js|html)$': 'jest-preset-angular',
   },

@@ -2,8 +2,8 @@
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
   "version": 2,
   "projects": {
-    "libs-pomodoro-feature-timer": "libs/libs/pomodoro/feature-timer",
     "pomodoro": "apps/pomodoro",
-    "pomodoro-e2e": "apps/pomodoro-e2e"
+    "pomodoro-e2e": "apps/pomodoro-e2e",
+    "pomodoro-feature-timer": "libs/pomodoro/feature-timer"
   }
 }
