@@ -1,0 +1,5 @@
+generate lib:
+nx g lib <name> [--directory="<pathFromProjectRoot>"]
+
+remove lib:
+nx g rm <name>
