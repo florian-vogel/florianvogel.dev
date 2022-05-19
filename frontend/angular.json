@@ -4,6 +4,6 @@
   "projects": {
     "pomodoro": "apps/pomodoro",
     "pomodoro-e2e": "apps/pomodoro-e2e",
-    "pomodoro-feature-timer": "libs/pomodoro/feature-timer"
+    "pomodoro-feature-mainpage": "libs/pomodoro/feature-mainpage"
   }
 }

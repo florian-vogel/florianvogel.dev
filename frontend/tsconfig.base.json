@@ -15,8 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@florianvogel-dev/pomodoro/feature-timer": [
-        "libs/pomodoro/feature-timer/src/index.ts"
+      "@florianvogel-dev/pomodoro/feature-mainpage": [
+        "libs/pomodoro/feature-mainpage/src/index.ts"
       ]
     }
   },

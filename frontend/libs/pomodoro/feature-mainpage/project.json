@@ -1,13 +1,13 @@
 {
   "projectType": "library",
-  "sourceRoot": "libs/pomodoro/feature-timer/src",
+  "sourceRoot": "libs/pomodoro/feature-mainpage/src",
   "prefix": "florianvogel-dev",
   "targets": {
     "test": {
       "executor": "@nrwl/jest:jest",
-      "outputs": ["coverage/libs/pomodoro/feature-timer"],
+      "outputs": ["coverage/libs/pomodoro/feature-mainpage"],
       "options": {
-        "jestConfig": "libs/pomodoro/feature-timer/jest.config.ts",
+        "jestConfig": "libs/pomodoro/feature-mainpage/jest.config.ts",
         "passWithNoTests": true
       }
     },
@@ -15,8 +15,8 @@
       "executor": "@nrwl/linter:eslint",
       "options": {
         "lintFilePatterns": [
-          "libs/pomodoro/feature-timer/**/*.ts",
-          "libs/pomodoro/feature-timer/**/*.html"
+          "libs/pomodoro/feature-mainpage/**/*.ts",
+          "libs/pomodoro/feature-mainpage/**/*.html"
         ]
       }
     }
