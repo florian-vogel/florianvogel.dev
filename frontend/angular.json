@@ -4,6 +4,7 @@
   "projects": {
     "pomodoro": "apps/pomodoro",
     "pomodoro-e2e": "apps/pomodoro-e2e",
-    "pomodoro-feature-mainpage": "libs/pomodoro/feature-mainpage"
+    "pomodoro-feature-mainpage": "libs/pomodoro/feature-mainpage",
+    "shared-ui-common": "libs/shared/ui-common"
   }
 }

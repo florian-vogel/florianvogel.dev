@@ -17,6 +17,9 @@
     "paths": {
       "@florianvogel-dev/pomodoro/feature-mainpage": [
         "libs/pomodoro/feature-mainpage/src/index.ts"
+      ],
+      "@florianvogel-dev/shared/ui-common": [
+        "libs/shared/ui-common/src/index.ts"
       ]
     }
   },

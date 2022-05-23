@@ -1,0 +1,25 @@
+{
+  "projectType": "library",
+  "sourceRoot": "libs/shared/ui-common/src",
+  "prefix": "florianvogel-dev",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "outputs": ["coverage/libs/shared/ui-common"],
+      "options": {
+        "jestConfig": "libs/shared/ui-common/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nrwl/linter:eslint",
+      "options": {
+        "lintFilePatterns": [
+          "libs/shared/ui-common/**/*.ts",
+          "libs/shared/ui-common/**/*.html"
+        ]
+      }
+    }
+  },
+  "tags": []
+}
