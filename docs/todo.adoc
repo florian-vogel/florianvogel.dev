@@ -1,6 +1,4 @@
 nextup:
-- create shared and pomodoro folder for libraries
-- create git repository
 - tests schreiben
 
 longterm:

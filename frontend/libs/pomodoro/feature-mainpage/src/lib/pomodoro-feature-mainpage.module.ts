@@ -4,17 +4,16 @@ import { MainpageComponent } from './container/mainpage/mainpage.component';
 import { TimerViewComponent } from './container/timer-view/timer-view.component';
 import { NotesViewComponent } from './container/notes-view/notes-view.component';
 import { TodosViewComponent } from './container/todos-view/todos-view.component';
+import { SharedUiCommonModule } from '@florianvogel-dev/shared/ui-common';
 
 @NgModule({
-  imports: [CommonModule],
+  imports: [CommonModule, SharedUiCommonModule],
   declarations: [
     MainpageComponent,
     TimerViewComponent,
     NotesViewComponent,
     TodosViewComponent,
   ],
-  exports: [
-    MainpageComponent
-  ]
+  exports: [MainpageComponent],
 })
 export class PomodoroFeatureMainpageModule {}
