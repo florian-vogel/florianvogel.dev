@@ -21,7 +21,7 @@
           "error",
           {
             "type": "element",
-            "prefix": "florianvogel-dev",
+            "prefix": "shared",
             "style": "kebab-case"
           }
         ]

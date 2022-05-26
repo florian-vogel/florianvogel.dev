@@ -1,7 +1,7 @@
 {
   "projectType": "library",
   "sourceRoot": "libs/pomodoro/feature-mainpage/src",
-  "prefix": "florianvogel-dev",
+  "prefix": "pomodoro",
   "targets": {
     "test": {
       "executor": "@nrwl/jest:jest",

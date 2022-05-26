@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'florianvogel-dev-notes-view',
+  selector: 'pomodoro-mainpage-notes-view',
   templateUrl: './notes-view.component.html',
   styleUrls: ['./notes-view.component.scss'],
 })
