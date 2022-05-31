@@ -1,21 +1,21 @@
-/* TODO fvogel: auslagern */
-@import '../../../../../../../node_modules/bootstrap/scss/bootstrap.scss';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins';
 
-/* TODO fvogel: auslagern */
-@include media-breakpoint-up(sm) {
+$card-width-md: 300px;
+$card-height-sm: 200px;
+$card-height-md: 500px;
+
+.mh-md {
+  max-height: $card-height-md;
 }
 
-/* TODO: fvogel: replace 500 and 200 with vars (e.g. lg, sm, ...) */
-.mh-500 {
-  max-height: 500px;
+.mh-sm {
+  max-height: $card-height-sm;
 }
 
-.mh-200 {
-    max-height: 200px;
-}
-
-.mw-300 {
-  max-width: 300px;
+.mw-md {
+  max-width: $card-width-md;
 }
 
 .main-container {
