@@ -1,0 +1,41 @@
+/* TODO fvogel: auslagern */
+@import '../../../../../../../node_modules/bootstrap/scss/bootstrap.scss';
+
+/* TODO fvogel: auslagern */
+@include media-breakpoint-up(sm) {
+}
+
+/* TODO: fvogel: replace 500 and 200 with vars (e.g. lg, sm, ...) */
+.mh-500 {
+  max-height: 500px;
+}
+
+.mh-200 {
+    max-height: 200px;
+}
+
+.mw-300 {
+  max-width: 300px;
+}
+
+.main-container {
+  flex-direction: column;
+}
+
+@include media-breakpoint-up(lg) {
+  .main-container {
+    flex-direction: row;
+  }
+
+  .notes-card {
+    order: 0;
+  }
+
+  .timer-card {
+    order: 1;
+  }
+
+  .todos-card {
+    order: 2;
+  }
+}
