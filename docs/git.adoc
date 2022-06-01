@@ -1,0 +1,3 @@
+delete branch:
+1. (maybe not needed: delete branch locally) git branch -d <branch-name>
+2. git push --delete origin <branch-name>
