@@ -8,7 +8,7 @@ import {
   map,
   Subject,
 } from 'rxjs';
-import { createTimer, TimerActions, TimerConfig, TimerState } from './timer';
+import { createTimer, TimerActions, TimerConfig, TimerState } from './createTimer';
 
 // subject ot handle incoming timerEvents
 // timerBehaviorSubject pipes this subject and returns according timerValues
