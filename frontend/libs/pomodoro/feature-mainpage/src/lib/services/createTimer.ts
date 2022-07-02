@@ -2,7 +2,6 @@ import { interval, merge, Observable, of } from 'rxjs';
 import {
   distinctUntilChanged,
   map,
-  shareReplay,
   startWith,
   switchScan,
   takeWhile,
@@ -39,9 +38,7 @@ export function createTimer(
       switchScan(
         (
           acc: { state: TimerState; config: TimerConfig },
-          curr:
-            | { type: 'action'; value: TimerAction }
-            | { type: 'config'; value: TimerConfig }
+          curr: UpdateTimer
         ) => {
           if (curr.type === 'action') {
             if (curr.value === 'start' && !acc.state.running) {

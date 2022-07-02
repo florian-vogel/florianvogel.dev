@@ -1,4 +1,5 @@
 <div
+  *ngIf="(timerState$ | async) as timerState"
   class="container d-flex flex-column h-100 align-items-center justify-content-center"
 >
   <h1 class="p-1">23:00</h1>
@@ -22,7 +23,7 @@
       </svg>
     </button>
     <button
-      *ngIf="(timerRunning$ | async) === false"
+      *ngIf="!timerState.running"
       class="btn"
       (click)="handleTimerAction('start')"
     >
@@ -40,7 +41,7 @@
       </svg>
     </button>
     <button
-      *ngIf="timerRunning$ | async"
+      *ngIf="timerState.running"
       class="btn"
       (click)="handleTimerAction('pause')"
     >

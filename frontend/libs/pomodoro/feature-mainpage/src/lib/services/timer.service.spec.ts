@@ -1,15 +1,17 @@
-import { TestScheduler } from 'rxjs/testing';
-import { createTimer, TimerAction } from './createTimer';
 import { Observable } from 'rxjs';
+import { TestScheduler } from 'rxjs/testing';
+import { TimerAction } from './createTimer';
+import { createIntervalTimer, Phase } from './timer.service';
 
-describe('createTimer function', () => {
+describe('timerService', () => {
   let testScheduler: TestScheduler;
   beforeEach(() => {
     testScheduler = new TestScheduler((actual, expected) => {
-      expect(actual).toEqual(expected);
+      expect(actual.toEqual(expected));
     });
   });
 
+  // Similar test cases to createTimer
   it('timer updates config properly', () => {
     testScheduler.run((helpers) => {
       const { cold, expectObservable } = helpers;
@@ -24,19 +26,28 @@ describe('createTimer function', () => {
           i: { secondsLeft: 60, running: false },
           j: { secondsLeft: 120, running: false },
         },
-        config: { i: { startTime: 60 }, j: { startTime: 120 } },
+        config: {
+          i: {
+            startPhase: 'work' as Phase,
+            phaseDurations: { work: 60, break: 5, longBreak: 20 },
+          },
+          j: {
+            startPhase: 'break' as Phase,
+            phaseDurations: { work: 120, break: 5, longBreak: 25 },
+          },
+        },
       };
 
       const config$ = cold(marbles.config, values.config);
       const action$ = cold(
         marbles.action
       ) as unknown as Observable<TimerAction>;
-      const timer$ = createTimer(config$, action$);
+      const timer$ = createIntervalTimer(config$, action$);
 
       expectObservable(timer$).toBe(marbles.expected, values.expected);
     });
   });
-
+  /* 
   it("timer starts counting backwards when receiving 'start' action", () => {
     testScheduler.run((helpers) => {
       const { cold, expectObservable } = helpers;
@@ -131,5 +142,5 @@ describe('createTimer function', () => {
 
       expectObservable(timer$).toBe(marbles.expected, values.expected);
     });
-  });
+  }); */
 });

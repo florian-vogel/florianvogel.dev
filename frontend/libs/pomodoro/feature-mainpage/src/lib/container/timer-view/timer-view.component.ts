@@ -1,8 +1,7 @@
-import { Component, Input } from '@angular/core';
-import { Observable, of, Subject } from 'rxjs';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Observable } from 'rxjs';
 import {
-  createIntervalTimer,
-  IntervalTimerActions,
+  IntervalTimerAction,
   IntervalTimerState,
 } from '../../services/timer.service';
 
@@ -13,20 +12,12 @@ import {
 })
 export class TimerViewComponent {
   @Input()
-  set timerRunning(input: Observable<boolean> | null | undefined) {
-    this.timerRunning$ = input;
-  }
+  timerState$: Observable<IntervalTimerState> | undefined;
 
-  public timerRunning$: Observable<boolean> | null | undefined = of(true);
-  public timer$: Observable<IntervalTimerState>;
-  private timerEvents: Subject<IntervalTimerActions> = new Subject();
+  @Output()
+  timerActionEmitter = new EventEmitter<IntervalTimerAction>();
 
-  constructor() {
-    this.timer$ = null as any;
-    /*     this.timer$ = createIntervalTimer(this.timerEvents); */
-  }
-
-  handleTimerAction(action: IntervalTimerActions) {
-    this.timerEvents.next(action);
+  handleTimerAction(action: IntervalTimerAction) {
+    this.timerActionEmitter.emit(action);
   }
 }
