@@ -2,6 +2,12 @@ import { TestScheduler } from 'rxjs/testing';
 import { createTimer, Phase, TimerAction } from './createTimer';
 import { Observable } from 'rxjs';
 
+type TestPhase = 'work' | 'break' | 'longBreak';
+
+function nextTestPhase(phase: TestPhase): TestPhase {
+  return phase === 'work' ? 'break' : phase === 'break' ? 'longBreak' : 'work';
+}
+
 describe('createTimer function', () => {
   let testScheduler: TestScheduler;
   beforeEach(() => {
@@ -22,12 +28,14 @@ describe('createTimer function', () => {
       const values = {
         config: {
           i: {
-            startPhase: 'work' as Phase,
+            startPhase: 'work' as TestPhase,
             phaseDurations: { work: 60, break: 5, longBreak: 20 },
+            nextPhase: nextTestPhase,
           },
           j: {
-            startPhase: 'break' as Phase,
+            startPhase: 'break' as TestPhase,
             phaseDurations: { work: 120, break: 5, longBreak: 25 },
+            nextPhase: nextTestPhase,
           },
         },
         expected: {
@@ -58,8 +66,9 @@ describe('createTimer function', () => {
       const values = {
         config: {
           i: {
-            startPhase: 'work' as Phase,
+            startPhase: 'work' as TestPhase,
             phaseDurations: { work: 3, break: 1, longBreak: 1 },
+            nextPhase: nextTestPhase,
           },
         },
         action: { s: 'start' },
@@ -95,8 +104,9 @@ describe('createTimer function', () => {
       const values = {
         config: {
           i: {
-            startPhase: 'work' as Phase,
+            startPhase: 'work' as TestPhase,
             phaseDurations: { work: 2, break: 1, longBreak: 2 },
+            nextPhase: nextTestPhase,
           },
         },
         action: { s: 'start', p: 'pause' },
@@ -133,8 +143,9 @@ describe('createTimer function', () => {
       const values = {
         config: {
           i: {
-            startPhase: 'work' as Phase,
+            startPhase: 'work' as TestPhase,
             phaseDurations: { work: 2, break: 1, longBreak: 2 },
+            nextPhase: nextTestPhase,
           },
         },
         action: { s: 'start', r: 'reset' },
@@ -169,8 +180,9 @@ describe('createTimer function', () => {
       const values = {
         config: {
           i: {
-            startPhase: 'work' as Phase,
+            startPhase: 'work' as TestPhase,
             phaseDurations: { work: 2, break: 1, longBreak: 2 },
+            nextPhase: nextTestPhase
           },
         },
         action: { s: 'start', r: 'skip' },

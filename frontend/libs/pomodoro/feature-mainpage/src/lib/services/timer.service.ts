@@ -39,4 +39,4 @@ export function createIntervalTimer(
   return null as any;
 }
 
- */
+*/
