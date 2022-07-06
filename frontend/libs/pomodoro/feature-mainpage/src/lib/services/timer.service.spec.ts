@@ -1,17 +1,20 @@
-import { Observable } from 'rxjs';
+/* import { Observable } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
-import { TimerAction } from './createTimer';
-import { createIntervalTimer, Phase } from './timer.service';
+import {
+  createIntervalTimer,
+  IntervalTimerAction,
+  Phase,
+} from './timer.service';
 
 describe('timerService', () => {
   let testScheduler: TestScheduler;
   beforeEach(() => {
     testScheduler = new TestScheduler((actual, expected) => {
-      expect(actual.toEqual(expected));
+      expect(actual).toEqual(expected);
     });
   });
 
-  // Similar test cases to createTimer
+  // Test cases are similar to createTimer
   it('timer updates config properly', () => {
     testScheduler.run((helpers) => {
       const { cold, expectObservable } = helpers;
@@ -22,10 +25,6 @@ describe('timerService', () => {
         action: '  ----',
       };
       const values = {
-        expected: {
-          i: { secondsLeft: 60, running: false },
-          j: { secondsLeft: 120, running: false },
-        },
         config: {
           i: {
             startPhase: 'work' as Phase,
@@ -36,18 +35,22 @@ describe('timerService', () => {
             phaseDurations: { work: 120, break: 5, longBreak: 25 },
           },
         },
+        expected: {
+          i: { secondsLeft: 60, running: false, phase: 'work' },
+          j: { secondsLeft: 5, running: false, phase: 'break' },
+        },
       };
 
       const config$ = cold(marbles.config, values.config);
       const action$ = cold(
         marbles.action
-      ) as unknown as Observable<TimerAction>;
+      ) as unknown as Observable<IntervalTimerAction>;
       const timer$ = createIntervalTimer(config$, action$);
 
       expectObservable(timer$).toBe(marbles.expected, values.expected);
     });
   });
-  /* 
+
   it("timer starts counting backwards when receiving 'start' action", () => {
     testScheduler.run((helpers) => {
       const { cold, expectObservable } = helpers;
@@ -58,14 +61,19 @@ describe('timerService', () => {
         expected: 'i-(a 997ms ) (b 997ms ) (c 997ms ) d',
       };
       const values = {
-        config: { i: { startTime: 3 } },
+        config: {
+          i: {
+            startPhase: 'break' as Phase,
+            phaseDurations: { work: 60, break: 3, longBreak: 20 },
+          },
+        },
         action: { s: 'start' },
         expected: {
-          i: { secondsLeft: 3, running: false },
-          a: { secondsLeft: 3, running: true },
-          b: { secondsLeft: 2, running: true },
-          c: { secondsLeft: 1, running: true },
-          d: { secondsLeft: 0, running: false },
+          i: { secondsLeft: 3, running: false, phase: 'break' },
+          a: { secondsLeft: 3, running: true, phase: 'break' },
+          b: { secondsLeft: 2, running: true, phase: 'break' },
+          c: { secondsLeft: 1, running: true, phase: 'break' },
+          d: { secondsLeft: 60, running: false, phase: 'work' },
         },
       };
 
@@ -73,13 +81,15 @@ describe('timerService', () => {
       const action$ = cold(
         marbles.action,
         values.action
-      ) as Observable<TimerAction>;
-      const timer$ = createTimer(config$, action$);
+      ) as Observable<IntervalTimerAction>;
+      const timer$ = createIntervalTimer(config$, action$);
 
       expectObservable(timer$).toBe(marbles.expected, values.expected);
     });
-  });
-
+  }); 
+});
+  */
+/*
   it("timer pauses when receiving 'pause' action and continues where left of with following 'start' action", () => {
     testScheduler.run((helpers) => {
       const { cold, expectObservable } = helpers;
@@ -143,4 +153,3 @@ describe('timerService', () => {
       expectObservable(timer$).toBe(marbles.expected, values.expected);
     });
   }); */
-});

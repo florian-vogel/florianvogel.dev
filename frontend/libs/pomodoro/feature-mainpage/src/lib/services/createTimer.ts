@@ -1,21 +1,26 @@
-import { interval, merge, Observable, of } from 'rxjs';
+import { interval, merge, Observable, of, Subject } from 'rxjs';
 import {
   distinctUntilChanged,
   map,
+  scan,
   startWith,
   switchScan,
   takeWhile,
 } from 'rxjs/operators';
 
+export type Phase = 'work' | 'break' | 'longBreak';
+
 export type TimerState = {
   secondsLeft: number;
+  phase: Phase;
   running: boolean;
 };
 
-export type TimerAction = 'start' | 'pause' | 'reset';
+export type TimerAction = 'start' | 'pause' | 'reset' | 'skip';
 
 export type TimerConfig = {
-  startTime: number;
+  startPhase: Phase;
+  phaseDurations: { [key in Phase]: number };
 };
 
 type UpdateTimer =
@@ -23,14 +28,15 @@ type UpdateTimer =
   | { type: 'action'; value: TimerAction };
 
 export function createTimer(
-  configSubject: Observable<TimerConfig>,
-  actionSubject: Observable<TimerAction>
+  config$: Observable<TimerConfig>,
+  action$: Observable<TimerAction>
 ): Observable<TimerState | undefined> {
+  const nextPhaseSubject = new Subject();
   return merge(
-    configSubject.pipe(
+    config$.pipe(
       map((config) => ({ type: 'config', value: config } as UpdateTimer))
     ),
-    actionSubject.pipe(
+    action$.pipe(
       map((action) => ({ type: 'action', value: action } as UpdateTimer))
     )
   )
@@ -45,17 +51,36 @@ export function createTimer(
               return interval(1000)
                 .pipe(
                   map((timePassed) => ({
-                    secondsLeft: acc.state.secondsLeft - (timePassed + 1),
-                    running: true,
+                    ...acc,
+                    state: {
+                      ...acc.state,
+                      secondsLeft: acc.state.secondsLeft - (timePassed + 1),
+                      running: true,
+                    },
                   }))
                 )
-                .pipe(startWith({ ...acc.state, running: true }))
-                .pipe(takeWhile((state) => state.secondsLeft >= 0))
                 .pipe(
-                  map(({ secondsLeft }) => ({
-                    ...acc,
-                    state: { secondsLeft, running: secondsLeft > 0 },
-                  }))
+                  startWith({ ...acc, state: { ...acc.state, running: true } })
+                )
+                .pipe(takeWhile((value) => value.state.secondsLeft >= 0))
+                .pipe(
+                  map((value) => {
+                    return {
+                      ...acc,
+                      ...value,
+                      state: {
+                        ...value.state,
+                        ...(value.state.secondsLeft === 0 && {
+                          secondsLeft:
+                            acc.config.phaseDurations[
+                              nextPhase(acc.state.phase)
+                            ],
+                          running: false,
+                          phase: nextPhase(acc.state.phase),
+                        }),
+                      },
+                    };
+                  })
                 );
             } else if (curr.value === 'pause' && acc.state.running) {
               return of({ ...acc, state: { ...acc.state, running: false } });
@@ -63,8 +88,20 @@ export function createTimer(
               return of({
                 ...acc,
                 state: {
+                  ...acc.state,
                   running: false,
-                  secondsLeft: acc.config.startTime,
+                  secondsLeft: acc.config.phaseDurations[acc.state.phase],
+                },
+              });
+            } else if (curr.value === 'skip') {
+              const next = nextPhase(acc.state.phase);
+              return of({
+                ...acc,
+                state: {
+                  ...acc.state,
+                  running: false,
+                  secondsLeft: acc.config.phaseDurations[next],
+                  phase: next,
                 },
               });
             }
@@ -72,21 +109,33 @@ export function createTimer(
             return of({
               state: {
                 running: false,
-                secondsLeft: curr.value.startTime,
+                secondsLeft: curr.value.phaseDurations[curr.value.startPhase],
+                phase: curr.value.startPhase,
               },
               config: {
-                startTime: curr.value.startTime,
+                ...curr.value,
               },
             });
           }
           return of(acc);
         },
         {
-          state: { secondsLeft: 0, running: false },
-          config: { startTime: 0 },
+          config: {
+            startPhase: 'work',
+            phaseDurations: {
+              work: 25 * 60,
+              break: 5 * 60,
+              longBreak: 15 * 60,
+            },
+          },
+          state: { secondsLeft: 25 * 60, phase: 'work', running: false },
         }
       )
     )
-    .pipe(map(({ state }) => state))
+    .pipe(map((value) => value?.state))
     .pipe(distinctUntilChanged());
+}
+
+function nextPhase(curr: Phase): Phase {
+  return curr === 'work' ? 'break' : curr === 'break' ? 'longBreak' : 'work';
 }

@@ -1,5 +1,23 @@
-import { Observable } from 'rxjs';
-import { TimerAction, TimerState } from './createTimer';
+/* import {
+  tap,
+  map,
+  Observable,
+  scan,
+  Subject,
+  switchMap,
+  combineLatest,
+  startWith,
+  distinctUntilChanged,
+  switchScan,
+  switchAll,
+  shareReplay,
+} from 'rxjs';
+import {
+  createTimer,
+  TimerAction,
+  TimerConfig,
+  TimerState,
+} from './createTimer';
 
 export interface IntervalTimerState extends TimerState {
   phase: Phase;
@@ -15,9 +33,10 @@ type IntervalTimerConfig = {
 };
 
 export function createIntervalTimer(
-  config: Observable<IntervalTimerConfig>,
-  action: Observable<IntervalTimerAction>
+  config$: Observable<IntervalTimerConfig>,
+  action$: Observable<IntervalTimerAction>
 ): Observable<IntervalTimerState | undefined> {
-  console.log(config, action);
-  return null as unknown as Observable<IntervalTimerState | undefined>;
+  return null as any;
 }
+
+ */
