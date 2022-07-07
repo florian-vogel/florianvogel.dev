@@ -1,12 +1,22 @@
 import { TestScheduler } from 'rxjs/testing';
-import { createTimer, Phase, TimerAction } from './createTimer';
+import { createTimer, TimerAction, TimerConfig } from './createTimer';
 import { Observable } from 'rxjs';
 
-type TestPhase = 'work' | 'break' | 'longBreak';
+type TestTimerPhase = 'work' | 'break' | 'longBreak';
 
-function nextTestPhase(phase: TestPhase): TestPhase {
+function nextTestTimerPhase(phase: TestTimerPhase): TestTimerPhase {
   return phase === 'work' ? 'break' : phase === 'break' ? 'longBreak' : 'work';
 }
+
+const initialTestTimerConfig: TimerConfig<TestTimerPhase> = {
+  startPhase: 'work',
+  phaseDurations: {
+    work: 25 * 60,
+    break: 5 * 60,
+    longBreak: 15 * 60,
+  },
+  nextPhase: nextTestTimerPhase,
+};
 
 describe('createTimer function', () => {
   let testScheduler: TestScheduler;
@@ -21,24 +31,25 @@ describe('createTimer function', () => {
       const { cold, expectObservable } = helpers;
 
       const marbles = {
-        expected: 'i-j-',
-        config: '  i-j-',
-        action: '  ----',
+        config: '  i----j-',
+        action: '  -------',
+        expected: '(xi)-j-',
       };
       const values = {
         config: {
           i: {
-            startPhase: 'work' as TestPhase,
+            startPhase: 'work' as TestTimerPhase,
             phaseDurations: { work: 60, break: 5, longBreak: 20 },
-            nextPhase: nextTestPhase,
+            nextPhase: nextTestTimerPhase,
           },
           j: {
-            startPhase: 'break' as TestPhase,
+            startPhase: 'break' as TestTimerPhase,
             phaseDurations: { work: 120, break: 5, longBreak: 25 },
-            nextPhase: nextTestPhase,
+            nextPhase: nextTestTimerPhase,
           },
         },
         expected: {
+          x: { secondsLeft: 25 * 60, phase: 'work', running: false },
           i: { secondsLeft: 60, running: false, phase: 'work' },
           j: { secondsLeft: 5, running: false, phase: 'break' },
         },
@@ -48,7 +59,7 @@ describe('createTimer function', () => {
       const action$ = cold(
         marbles.action
       ) as unknown as Observable<TimerAction>;
-      const timer$ = createTimer(config$, action$);
+      const timer$ = createTimer(config$, action$, initialTestTimerConfig);
 
       expectObservable(timer$).toBe(marbles.expected, values.expected);
     });
@@ -60,19 +71,20 @@ describe('createTimer function', () => {
 
       const marbles = {
         config: '  i',
-        action: '  --s',
-        expected: 'i-(a 997ms ) (b 997ms ) (c 997ms ) d',
+        action: '  -------s',
+        expected: '(xi)---(a 997ms ) (b 997ms ) (c 997ms ) d',
       };
       const values = {
         config: {
           i: {
-            startPhase: 'work' as TestPhase,
+            startPhase: 'work' as TestTimerPhase,
             phaseDurations: { work: 3, break: 1, longBreak: 1 },
-            nextPhase: nextTestPhase,
+            nextPhase: nextTestTimerPhase,
           },
         },
         action: { s: 'start' },
         expected: {
+          x: { secondsLeft: 25 * 60, phase: 'work', running: false },
           i: { secondsLeft: 3, phase: 'work', running: false },
           a: { secondsLeft: 3, phase: 'work', running: true },
           b: { secondsLeft: 2, phase: 'work', running: true },
@@ -86,7 +98,7 @@ describe('createTimer function', () => {
         marbles.action,
         values.action
       ) as Observable<TimerAction>;
-      const timer$ = createTimer(config$, action$);
+      const timer$ = createTimer(config$, action$, initialTestTimerConfig);
 
       expectObservable(timer$).toBe(marbles.expected, values.expected);
     });
@@ -98,19 +110,20 @@ describe('createTimer function', () => {
 
       const marbles = {
         config: '  i',
-        action: '  --s  1500ms             p 200ms s',
-        expected: 'i-(a 997ms ) (b 498ms ) c 200ms (d 997ms ) e',
+        action: '  ------s  1500ms             p 200ms s',
+        expected: '(xi)--(a 997ms ) (b 498ms ) c 200ms (d 997ms ) e',
       };
       const values = {
         config: {
           i: {
-            startPhase: 'work' as TestPhase,
+            startPhase: 'work' as TestTimerPhase,
             phaseDurations: { work: 2, break: 1, longBreak: 2 },
-            nextPhase: nextTestPhase,
+            nextPhase: nextTestTimerPhase,
           },
         },
         action: { s: 'start', p: 'pause' },
         expected: {
+          x: { secondsLeft: 25 * 60, phase: 'work', running: false },
           i: { secondsLeft: 2, phase: 'work', running: false },
           a: { secondsLeft: 2, phase: 'work', running: true },
           b: { secondsLeft: 1, phase: 'work', running: true },
@@ -125,7 +138,7 @@ describe('createTimer function', () => {
         marbles.action,
         values.action
       ) as Observable<TimerAction>;
-      const timer$ = createTimer(config$, action$);
+      const timer$ = createTimer(config$, action$, initialTestTimerConfig);
 
       expectObservable(timer$).toBe(marbles.expected, values.expected);
     });
@@ -137,19 +150,20 @@ describe('createTimer function', () => {
 
       const marbles = {
         config: '  i',
-        action: '  --s  1500ms             r',
-        expected: 'i-(a 997ms ) (b 498ms ) c',
+        action: '  ------s  1500ms              r',
+        expected: '(xi)--(a 997ms ) (b 498ms ) c',
       };
       const values = {
         config: {
           i: {
-            startPhase: 'work' as TestPhase,
+            startPhase: 'work' as TestTimerPhase,
             phaseDurations: { work: 2, break: 1, longBreak: 2 },
-            nextPhase: nextTestPhase,
+            nextPhase: nextTestTimerPhase,
           },
         },
         action: { s: 'start', r: 'reset' },
         expected: {
+          x: { secondsLeft: 25 * 60, phase: 'work', running: false },
           i: { secondsLeft: 2, phase: 'work', running: false },
           a: { secondsLeft: 2, phase: 'work', running: true },
           b: { secondsLeft: 1, phase: 'work', running: true },
@@ -162,7 +176,7 @@ describe('createTimer function', () => {
         marbles.action,
         values.action
       ) as Observable<TimerAction>;
-      const timer$ = createTimer(config$, action$);
+      const timer$ = createTimer(config$, action$, initialTestTimerConfig);
 
       expectObservable(timer$).toBe(marbles.expected, values.expected);
     });
@@ -174,19 +188,20 @@ describe('createTimer function', () => {
 
       const marbles = {
         config: '  i',
-        action: '  --s  1500ms             r',
-        expected: 'i-(a 997ms ) (b 498ms ) c',
+        action: '  -----s  1500ms             r',
+        expected: '(xi)-(a 997ms ) (b 498ms ) c',
       };
       const values = {
         config: {
           i: {
-            startPhase: 'work' as TestPhase,
+            startPhase: 'work' as TestTimerPhase,
             phaseDurations: { work: 2, break: 1, longBreak: 2 },
-            nextPhase: nextTestPhase
+            nextPhase: nextTestTimerPhase,
           },
         },
         action: { s: 'start', r: 'skip' },
         expected: {
+          x: { secondsLeft: 25 * 60, phase: 'work', running: false },
           i: { secondsLeft: 2, phase: 'work', running: false },
           a: { secondsLeft: 2, phase: 'work', running: true },
           b: { secondsLeft: 1, phase: 'work', running: true },
@@ -199,7 +214,7 @@ describe('createTimer function', () => {
         marbles.action,
         values.action
       ) as Observable<TimerAction>;
-      const timer$ = createTimer(config$, action$);
+      const timer$ = createTimer(config$, action$, initialTestTimerConfig);
 
       expectObservable(timer$).toBe(marbles.expected, values.expected);
     });

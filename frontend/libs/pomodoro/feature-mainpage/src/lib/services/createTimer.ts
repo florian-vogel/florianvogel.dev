@@ -1,4 +1,4 @@
-import { interval, merge, Observable, of, Subject } from 'rxjs';
+import { EMPTY, interval, merge, NEVER, Observable, of, Subject } from 'rxjs';
 import {
   distinctUntilChanged,
   map,
@@ -7,6 +7,7 @@ import {
   switchScan,
   takeWhile,
   switchMap,
+  filter,
 } from 'rxjs/operators';
 
 export type Phase = string;
@@ -27,9 +28,11 @@ export type TimerConfig<TPhase extends Phase> = {
 
 export function createTimer<TPhase extends Phase>(
   config$: Observable<TimerConfig<TPhase>>,
-  action$: Observable<TimerAction>
+  action$: Observable<TimerAction>,
+  initialConfig: TimerConfig<TPhase>
 ): Observable<TimerState<TPhase> | undefined> {
   return config$
+    .pipe(startWith(initialConfig))
     .pipe(
       switchMap((config: TimerConfig<TPhase>) => {
         const initialState = {

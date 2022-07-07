@@ -1,8 +1,8 @@
 <div
-  *ngIf="(timerState$ | async) as timerState"
+  *ngIf="timerState$ | async as timerState"
   class="container d-flex flex-column h-100 align-items-center justify-content-center"
 >
-  <h1 class="p-1">23:00</h1>
+  <h1 class="p-1">{{ timerState.secondsLeft }}</h1>
   <div class="container d-flex p-1 justify-content-center">
     <button class="btn" (click)="handleTimerAction('reset')">
       <svg
@@ -23,9 +23,9 @@
       </svg>
     </button>
     <button
-      *ngIf="!timerState.running"
+      *ngIf="timerState.running"
       class="btn"
-      (click)="handleTimerAction('start')"
+      (click)="handleTimerAction('pause')"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -41,9 +41,9 @@
       </svg>
     </button>
     <button
-      *ngIf="timerState.running"
+      *ngIf="!timerState.running"
       class="btn"
-      (click)="handleTimerAction('pause')"
+      (click)="handleTimerAction('start')"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

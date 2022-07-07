@@ -1,9 +1,33 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { Observable } from 'rxjs';
 import {
-  IntervalTimerAction,
-  IntervalTimerState,
-} from '../../services/timer.service';
+  AfterViewInit,
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+} from '@angular/core';
+import { Observable, of, tap, Subject } from 'rxjs';
+import {
+  createTimer,
+  TimerAction,
+  TimerConfig,
+  TimerState,
+} from '../../services/createTimer';
+
+type Phase = 'work' | 'break' | 'longBreak';
+
+function nextTimerPhase(phase: Phase): Phase {
+  return phase === 'work' ? 'break' : phase === 'break' ? 'longBreak' : 'work';
+}
+
+const initialTimerConfig: TimerConfig<Phase> = {
+  startPhase: 'work',
+  phaseDurations: {
+    work: 25 * 60,
+    break: 5 * 60,
+    longBreak: 15 * 60,
+  },
+  nextPhase: nextTimerPhase,
+};
 
 @Component({
   selector: 'pomodoro-mainpage-timer-view',
@@ -11,13 +35,19 @@ import {
   styleUrls: ['./timer-view.component.scss'],
 })
 export class TimerViewComponent {
-  @Input()
-  timerState$: Observable<IntervalTimerState> | undefined;
+  timerState$: Observable<TimerState<Phase> | undefined>;
+  config$: Subject<TimerConfig<Phase>> = new Subject();
+  action$: Subject<TimerAction> = new Subject();
 
-  @Output()
-  timerActionEmitter = new EventEmitter<IntervalTimerAction>();
+  constructor() {
+    this.timerState$ = createTimer(
+      this.config$,
+      this.action$,
+      initialTimerConfig
+    );
+  }
 
-  handleTimerAction(action: IntervalTimerAction) {
-    this.timerActionEmitter.emit(action);
+  handleTimerAction(action: TimerAction) {
+    this.action$.next(action);
   }
 }
