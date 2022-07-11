@@ -1,96 +1,103 @@
-import { EMPTY, interval, merge, NEVER, Observable, of, Subject } from 'rxjs';
+import { interval, Observable, of } from 'rxjs';
 import {
   distinctUntilChanged,
   map,
-  scan,
   startWith,
   switchScan,
   takeWhile,
   switchMap,
-  filter,
 } from 'rxjs/operators';
 
 export type Phase = string;
 
-export type TimerState<TPhase extends Phase> = {
+export type TimerState = {
   secondsLeft: number;
-  phase: TPhase;
   running: boolean;
+  phaseIndex: number;
 };
 
 export type TimerAction = 'start' | 'pause' | 'reset' | 'skip';
 
 export type TimerConfig<TPhase extends Phase> = {
-  startPhase: TPhase;
+  startPhaseIndex: number;
   phaseDurations: { [key in TPhase]: number };
-  nextPhase: (phase: TPhase) => TPhase;
+  phaseOrder: ReadonlyArray<TPhase>;
 };
 
 export function createTimer<TPhase extends Phase>(
   config$: Observable<TimerConfig<TPhase>>,
   action$: Observable<TimerAction>,
   initialConfig: TimerConfig<TPhase>
-): Observable<TimerState<TPhase> | undefined> {
+): Observable<TimerState | undefined> {
   return config$
     .pipe(startWith(initialConfig))
     .pipe(
       switchMap((config: TimerConfig<TPhase>) => {
+        const startPhase =
+          config.phaseOrder[config.startPhaseIndex % config.phaseOrder.length];
         const initialState = {
-          secondsLeft: config.phaseDurations[config.startPhase],
-          phase: config.startPhase,
+          secondsLeft: config.phaseDurations[startPhase],
           running: false,
+          phaseIndex: config.startPhaseIndex,
         };
         return action$
           .pipe(
-            switchScan((acc: TimerState<TPhase>, curr: TimerAction) => {
-              if (curr === 'start' && !acc.running) {
+            switchScan((accState: TimerState, currentAction: TimerAction) => {
+              if (currentAction === 'start' && !accState.running) {
                 return interval(1000)
                   .pipe(
                     map((timePassed) => ({
-                      ...acc,
-                      secondsLeft: acc.secondsLeft - (timePassed + 1),
+                      ...accState,
+                      secondsLeft: accState.secondsLeft - (timePassed + 1),
                       running: true,
                     }))
                   )
                   .pipe(
                     startWith({
-                      ...acc,
+                      ...accState,
                       running: true,
                     })
                   )
                   .pipe(takeWhile((value) => value.secondsLeft >= 0))
                   .pipe(
                     map((value) => {
+                      const nextPhase =
+                        (accState.phaseIndex + 1) % config.phaseOrder.length;
+                      const phaseToAccess = config.phaseOrder[nextPhase];
                       return {
-                        ...acc,
+                        ...accState,
                         ...value,
                         ...(value.secondsLeft === 0 && {
-                          secondsLeft:
-                            config.phaseDurations[config.nextPhase(acc.phase)],
+                          secondsLeft: config.phaseDurations[phaseToAccess],
                           running: false,
-                          phase: config.nextPhase(acc.phase),
+                          phaseIndex: nextPhase,
                         }),
                       };
                     })
                   );
-              } else if (curr === 'pause' && acc.running) {
-                return of({ ...acc, running: false });
-              } else if (curr === 'reset') {
+              } else if (currentAction === 'pause' && accState.running) {
+                return of({ ...accState, running: false });
+              } else if (currentAction === 'reset') {
                 return of({
-                  ...acc,
+                  ...accState,
                   running: false,
-                  secondsLeft: config.phaseDurations[acc.phase],
+                  secondsLeft:
+                    config.phaseDurations[
+                      config.phaseOrder[accState.phaseIndex]
+                    ],
                 });
-              } else if (curr === 'skip') {
-                const next = config.nextPhase(acc.phase);
+              } else if (currentAction === 'skip') {
+                const nextPhase =
+                  (accState.phaseIndex + 1) % config.phaseOrder.length;
+                const phaseToAccess = config.phaseOrder[nextPhase];
                 return of({
-                  ...acc,
+                  ...accState,
                   running: false,
-                  secondsLeft: config.phaseDurations[next],
-                  phase: next,
+                  secondsLeft: config.phaseDurations[phaseToAccess],
+                  phaseIndex: nextPhase,
                 });
               }
-              return of(acc);
+              return of(accState);
             }, initialState)
           )
           .pipe(startWith(initialState));

@@ -1,11 +1,5 @@
-import {
-  AfterViewInit,
-  Component,
-  EventEmitter,
-  Input,
-  Output,
-} from '@angular/core';
-import { Observable, of, tap, Subject } from 'rxjs';
+import { Component } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
 import {
   createTimer,
   TimerAction,
@@ -15,18 +9,14 @@ import {
 
 type Phase = 'work' | 'break' | 'longBreak';
 
-function nextTimerPhase(phase: Phase): Phase {
-  return phase === 'work' ? 'break' : phase === 'break' ? 'longBreak' : 'work';
-}
-
-const initialTimerConfig: TimerConfig<Phase> = {
-  startPhase: 'work',
+const INITIAL_TIMER_CONFIG: TimerConfig<Phase> = {
+  startPhaseIndex: 0,
   phaseDurations: {
     work: 25 * 60,
     break: 5 * 60,
     longBreak: 15 * 60,
   },
-  nextPhase: nextTimerPhase,
+  phaseOrder: ['work', 'break', 'work', 'break', 'work', 'longBreak'],
 };
 
 @Component({
@@ -35,7 +25,7 @@ const initialTimerConfig: TimerConfig<Phase> = {
   styleUrls: ['./timer-view.component.scss'],
 })
 export class TimerViewComponent {
-  timerState$: Observable<TimerState<Phase> | undefined>;
+  timerState$: Observable<TimerState | undefined>;
   config$: Subject<TimerConfig<Phase>> = new Subject();
   action$: Subject<TimerAction> = new Subject();
 
@@ -43,7 +33,7 @@ export class TimerViewComponent {
     this.timerState$ = createTimer(
       this.config$,
       this.action$,
-      initialTimerConfig
+      INITIAL_TIMER_CONFIG
     );
   }
 

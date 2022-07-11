@@ -4,18 +4,14 @@ import { Observable } from 'rxjs';
 
 type TestTimerPhase = 'work' | 'break' | 'longBreak';
 
-function nextTestTimerPhase(phase: TestTimerPhase): TestTimerPhase {
-  return phase === 'work' ? 'break' : phase === 'break' ? 'longBreak' : 'work';
-}
-
 const initialTestTimerConfig: TimerConfig<TestTimerPhase> = {
-  startPhase: 'work',
+  startPhaseIndex: 0,
   phaseDurations: {
     work: 25 * 60,
     break: 5 * 60,
     longBreak: 15 * 60,
   },
-  nextPhase: nextTestTimerPhase,
+  phaseOrder: ['work', 'break', 'work', 'break', 'work', 'longBreak'],
 };
 
 describe('createTimer function', () => {
@@ -37,21 +33,19 @@ describe('createTimer function', () => {
       };
       const values = {
         config: {
-          i: {
-            startPhase: 'work' as TestTimerPhase,
-            phaseDurations: { work: 60, break: 5, longBreak: 20 },
-            nextPhase: nextTestTimerPhase,
-          },
+          i: initialTestTimerConfig,
           j: {
-            startPhase: 'break' as TestTimerPhase,
-            phaseDurations: { work: 120, break: 5, longBreak: 25 },
-            nextPhase: nextTestTimerPhase,
+            ...initialTestTimerConfig,
+            phaseDurations: {
+              ...initialTestTimerConfig.phaseDurations,
+              work: 50 * 60,
+            },
           },
         },
         expected: {
-          x: { secondsLeft: 25 * 60, phase: 'work', running: false },
-          i: { secondsLeft: 60, running: false, phase: 'work' },
-          j: { secondsLeft: 5, running: false, phase: 'break' },
+          x: { secondsLeft: 25 * 60, running: false, phaseIndex: 0 },
+          i: { secondsLeft: 25 * 60, running: false, phaseIndex: 0 },
+          j: { secondsLeft: 50 * 60, running: false, phaseIndex: 0 },
         },
       };
 
@@ -65,7 +59,17 @@ describe('createTimer function', () => {
     });
   });
 
-  it("timer starts countdown when receiving 'start' action", () => {
+  const smallDurationConfig: TimerConfig<TestTimerPhase> = {
+    startPhaseIndex: 0,
+    phaseDurations: {
+      work: 3,
+      break: 2,
+      longBreak: 3,
+    },
+    phaseOrder: ['work', 'break'], // ...
+  };
+
+  it("when receiving 'start' action timer starts countdown", () => {
     testScheduler.run((helpers) => {
       const { cold, expectObservable } = helpers;
 
@@ -76,20 +80,16 @@ describe('createTimer function', () => {
       };
       const values = {
         config: {
-          i: {
-            startPhase: 'work' as TestTimerPhase,
-            phaseDurations: { work: 3, break: 1, longBreak: 1 },
-            nextPhase: nextTestTimerPhase,
-          },
+          i: smallDurationConfig,
         },
         action: { s: 'start' },
         expected: {
-          x: { secondsLeft: 25 * 60, phase: 'work', running: false },
-          i: { secondsLeft: 3, phase: 'work', running: false },
-          a: { secondsLeft: 3, phase: 'work', running: true },
-          b: { secondsLeft: 2, phase: 'work', running: true },
-          c: { secondsLeft: 1, phase: 'work', running: true },
-          d: { secondsLeft: 1, phase: 'break', running: false },
+          x: { secondsLeft: 3, running: false, phaseIndex: 0 },
+          i: { secondsLeft: 3, running: false, phaseIndex: 0 },
+          a: { secondsLeft: 3, running: true, phaseIndex: 0 },
+          b: { secondsLeft: 2, running: true, phaseIndex: 0 },
+          c: { secondsLeft: 1, running: true, phaseIndex: 0 },
+          d: { secondsLeft: 2, running: false, phaseIndex: 1 },
         },
       };
 
@@ -98,76 +98,32 @@ describe('createTimer function', () => {
         marbles.action,
         values.action
       ) as Observable<TimerAction>;
-      const timer$ = createTimer(config$, action$, initialTestTimerConfig);
+      const timer$ = createTimer(config$, action$, smallDurationConfig);
 
       expectObservable(timer$).toBe(marbles.expected, values.expected);
     });
   });
 
-  it("timer pauses when receiving 'pause' action and continues where left of with following 'start' action", () => {
+  it("when receiving 'pause' action timer stopps running", () => {
     testScheduler.run((helpers) => {
       const { cold, expectObservable } = helpers;
 
       const marbles = {
-        config: '  i',
-        action: '  ------s  1500ms             p 200ms s',
-        expected: '(xi)--(a 997ms ) (b 498ms ) c 200ms (d 997ms ) e',
-      };
-      const values = {
-        config: {
-          i: {
-            startPhase: 'work' as TestTimerPhase,
-            phaseDurations: { work: 2, break: 1, longBreak: 2 },
-            nextPhase: nextTestTimerPhase,
-          },
-        },
-        action: { s: 'start', p: 'pause' },
-        expected: {
-          x: { secondsLeft: 25 * 60, phase: 'work', running: false },
-          i: { secondsLeft: 2, phase: 'work', running: false },
-          a: { secondsLeft: 2, phase: 'work', running: true },
-          b: { secondsLeft: 1, phase: 'work', running: true },
-          c: { secondsLeft: 1, phase: 'work', running: false },
-          d: { secondsLeft: 1, phase: 'work', running: true },
-          e: { secondsLeft: 1, phase: 'break', running: false },
-        },
-      };
-
-      const config$ = cold(marbles.config, values.config);
-      const action$ = cold(
-        marbles.action,
-        values.action
-      ) as Observable<TimerAction>;
-      const timer$ = createTimer(config$, action$, initialTestTimerConfig);
-
-      expectObservable(timer$).toBe(marbles.expected, values.expected);
-    });
-  });
-
-  it("timer resets to latest config when receiving 'reset' action ", () => {
-    testScheduler.run((helpers) => {
-      const { cold, expectObservable } = helpers;
-
-      const marbles = {
-        config: '  i',
-        action: '  ------s  1500ms              r',
+        config: '  i ',
+        action: '  ------s  1500ms             p',
         expected: '(xi)--(a 997ms ) (b 498ms ) c',
       };
       const values = {
         config: {
-          i: {
-            startPhase: 'work' as TestTimerPhase,
-            phaseDurations: { work: 2, break: 1, longBreak: 2 },
-            nextPhase: nextTestTimerPhase,
-          },
+          i: initialTestTimerConfig,
         },
-        action: { s: 'start', r: 'reset' },
+        action: { s: 'start', p: 'pause' },
         expected: {
-          x: { secondsLeft: 25 * 60, phase: 'work', running: false },
-          i: { secondsLeft: 2, phase: 'work', running: false },
-          a: { secondsLeft: 2, phase: 'work', running: true },
-          b: { secondsLeft: 1, phase: 'work', running: true },
-          c: { secondsLeft: 2, phase: 'work', running: false },
+          x: { secondsLeft: 25 * 60, running: false, phaseIndex: 0 },
+          i: { secondsLeft: 25 * 60, running: false, phaseIndex: 0 },
+          a: { secondsLeft: 25 * 60, running: true, phaseIndex: 0 },
+          b: { secondsLeft: 25 * 60 - 1, running: true, phaseIndex: 0 },
+          c: { secondsLeft: 25 * 60 - 1, running: false, phaseIndex: 0 },
         },
       };
 
@@ -182,7 +138,41 @@ describe('createTimer function', () => {
     });
   });
 
-  it("timer skips to next phase when receiving 'skip' action ", () => {
+  it("when receiving 'reset' action timer resets to config of current phase and stops running", () => {
+    testScheduler.run((helpers) => {
+      const { cold, expectObservable } = helpers;
+
+      const marbles = {
+        config: '  i',
+        action: '  ------s  1500ms             r',
+        expected: '(xi)--(a 997ms ) (b 498ms ) c',
+      };
+      const values = {
+        config: {
+          i: initialTestTimerConfig,
+        },
+        action: { s: 'start', r: 'reset' },
+        expected: {
+          x: { secondsLeft: 25 * 60, running: false, phaseIndex: 0 },
+          i: { secondsLeft: 25 * 60, running: false, phaseIndex: 0 },
+          a: { secondsLeft: 25 * 60, running: true, phaseIndex: 0 },
+          b: { secondsLeft: 25 * 60 - 1, running: true, phaseIndex: 0 },
+          c: { secondsLeft: 25 * 60, running: false, phaseIndex: 0 },
+        },
+      };
+
+      const config$ = cold(marbles.config, values.config);
+      const action$ = cold(
+        marbles.action,
+        values.action
+      ) as Observable<TimerAction>;
+      const timer$ = createTimer(config$, action$, initialTestTimerConfig);
+
+      expectObservable(timer$).toBe(marbles.expected, values.expected);
+    });
+  });
+
+  it("when receiving 'skip' action timer applies config of next phase and stops running", () => {
     testScheduler.run((helpers) => {
       const { cold, expectObservable } = helpers;
 
@@ -193,19 +183,15 @@ describe('createTimer function', () => {
       };
       const values = {
         config: {
-          i: {
-            startPhase: 'work' as TestTimerPhase,
-            phaseDurations: { work: 2, break: 1, longBreak: 2 },
-            nextPhase: nextTestTimerPhase,
-          },
+          i: initialTestTimerConfig,
         },
         action: { s: 'start', r: 'skip' },
         expected: {
-          x: { secondsLeft: 25 * 60, phase: 'work', running: false },
-          i: { secondsLeft: 2, phase: 'work', running: false },
-          a: { secondsLeft: 2, phase: 'work', running: true },
-          b: { secondsLeft: 1, phase: 'work', running: true },
-          c: { secondsLeft: 1, phase: 'break', running: false },
+          x: { secondsLeft: 25 * 60, running: false, phaseIndex: 0 },
+          i: { secondsLeft: 25 * 60, running: false, phaseIndex: 0 },
+          a: { secondsLeft: 25 * 60, running: true, phaseIndex: 0 },
+          b: { secondsLeft: 25 * 60 - 1, running: true, phaseIndex: 0 },
+          c: { secondsLeft: 5 * 60, running: false, phaseIndex: 1 },
         },
       };
 
