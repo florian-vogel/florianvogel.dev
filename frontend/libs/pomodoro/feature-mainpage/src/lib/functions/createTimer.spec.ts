@@ -22,7 +22,7 @@ describe('createTimer function', () => {
     });
   });
 
-  it('timer updates config properly', () => {
+  it('when receiving new config timer returns new config', () => {
     testScheduler.run((helpers) => {
       const { cold, expectObservable } = helpers;
 

@@ -5,7 +5,7 @@ import {
   TimerAction,
   TimerConfig,
   TimerState,
-} from '../../services/createTimer';
+} from '../../functions/createTimer';
 
 type Phase = 'work' | 'break' | 'longBreak';
 
