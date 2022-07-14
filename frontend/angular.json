@@ -1,12 +1,10 @@
 {
   "$schema": "./node_modules/nx/schemas/workspace-schema.json",
-  "version": 1,
+  "version": 2,
   "projects": {
-    "pomodoro": { "root": "apps/pomodoro" },
-    "pomodoro-e2e": { "root": "apps/pomodoro-e2e" },
-    "pomodoro-feature-mainpage": {
-      "root": "libs/pomodoro/feature-mainpage"
-    },
-    "shared-ui-common": { "root": "libs/shared/ui-common" }
+    "pomodoro": "apps/pomodoro",
+    "pomodoro-e2e": "apps/pomodoro-e2e",
+    "pomodoro-feature-mainpage": "libs/pomodoro/feature-mainpage",
+    "shared-ui-common": "libs/shared/ui-common"
   }
 }
