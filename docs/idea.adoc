@@ -1,0 +1,22 @@
+function:
+two modes: single and multiple users
+
+first implement basic pomodoro idea (sigle mode)
+-> timer, tasks, notes
+    - tasks is a extended todo list feature (e.g. folder structure to organize multiple
+    todo lists)
+-> useraccount, authentication, data sync
+    - note: timer should be synced as well across multiple devices (realtime db)
+-> show statistics about and display how good the technique is working (maybe show intresting
+facts about recent progress)
+
+then extend to second mode (multiple users)
+-> user can create 'room' to which others can join via a code (see kahoot)
+-> creator has multiple settings about what others are allowed to do
+    - if creator allows users can see their todolists and can take notes
+    - if creator allows, users can control timer
+    
+
+style:
+animated timer
+clean style, maybe use the 

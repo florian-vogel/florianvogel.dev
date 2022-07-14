@@ -1,0 +1,5 @@
+first considerations:
+-> two types of data syncing: realtime (timer) and normal (todos, notes)
+    - realtime: firebase realtime db (alternatives: realtimedb, nextjs edge functions,
+    cloudflare workers)
+    - normal: firestore (alternatives: django)
