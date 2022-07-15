@@ -5,6 +5,7 @@ import { TimerViewComponent } from './container/timer-view/timer-view.component'
 import { NotesViewComponent } from './container/notes-view/notes-view.component';
 import { TodosViewComponent } from './container/todos-view/todos-view.component';
 import { SharedUiCommonModule } from '@florianvogel-dev/shared/ui-common';
+import { TimerStore } from './services/timerStore.service';
 
 @NgModule({
   imports: [CommonModule, SharedUiCommonModule],
@@ -15,5 +16,6 @@ import { SharedUiCommonModule } from '@florianvogel-dev/shared/ui-common';
     TodosViewComponent,
   ],
   exports: [MainpageComponent],
+  providers: [TimerStore],
 })
 export class PomodoroFeatureMainpageModule {}

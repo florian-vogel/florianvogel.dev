@@ -20,3 +20,11 @@ then extend to second mode (multiple users)
 style:
 animated timer
 clean style, maybe use the 
+
+problems:
+-> how could the synchronisation work?
+    - if other users just joined as viewers -- no problem
+    - if we have multiple editors: every user has it's own timer state,
+        if local user edits timer wait for actions to apply by a fixed amout (2 * rtt)
+        if remote user edits apply changes immediately
+        timer state property has lock so ony one user at a time can edit

@@ -3,3 +3,4 @@ nx g lib <name> [--directory="<pathFromProjectRoot>"]
 
 remove lib:
 nx g rm <name>
+e.g. nx g lib util-common --directory="libs/shared"
