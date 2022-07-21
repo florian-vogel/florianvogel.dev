@@ -18,6 +18,7 @@ const INITIAL_TIMER_CONFIG: TimerConfig<Phase> = {
   phaseOrder: ['work', 'break', 'work', 'break', 'work', 'longBreak'],
 };
 
+
 @Injectable()
 export class TimerStore {
   private _timerState: BehaviorSubject<TimerState | undefined> =
@@ -25,8 +26,8 @@ export class TimerStore {
   private config$: Subject<TimerConfig<Phase>> = new Subject();
   private action$: Subject<TimerAction> = new Subject();
 
-  get timerState(): Observable<TimerState> {
-    return new Observable((fn) => this._timerState.subscribe(fn));
+  get timerState(): Observable<TimerState | undefined> {
+    return asObservable(this._timerState);
   }
 
   constructor() {
@@ -42,4 +43,8 @@ export class TimerStore {
   applyConfig(config: TimerConfig<Phase>) {
     this.config$.next(config);
   }
+}
+
+function asObservable<T>(subject: Subject<T>) {
+  return new Observable<T>((fn) => subject.subscribe(fn));
 }

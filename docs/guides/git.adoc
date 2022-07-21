@@ -1,3 +1,33 @@
+--> useful
+
+reset changes:
+git reset --hard
+
+stash changes:
+git stash
+
+get stash:
+git stash pop
+
+
+--> edit branches:
+
 delete branch:
 1. (maybe not needed: delete branch locally) git branch -d <branch-name>
 2. git push --delete origin <branch-name>
+
+
+--> print:
+
+print graph:
+git log --pretty=format:"%an -- %s" --graph
+
+show commit with canges made: 
+git log -p
+
+show commits with changes to a specific file:
+git log -- <pathToFile>
+(space inteded, has to stand at the end of the log command)
+
+show information about particular remote (here origin)
+git remote show origin
