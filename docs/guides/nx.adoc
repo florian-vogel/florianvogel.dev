@@ -1,6 +1,6 @@
 generate lib:
 nx g lib <name> [--directory="<pathFromProjectRoot>"]
+e.g. nx g lib util-common --directory="libs/shared"
 
 remove lib:
 nx g rm <name>
-e.g. nx g lib util-common --directory="libs/shared"
