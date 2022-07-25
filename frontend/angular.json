@@ -11,7 +11,8 @@
             "outputPath": "dist/pomodoro",
             "index": "",
             "main": "",
-            "tsConfig": ""
+            "tsConfig": "apps/pomodoro",
+            "watch": true
           }
         }
       }
