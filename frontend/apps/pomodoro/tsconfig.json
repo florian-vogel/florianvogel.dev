@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "files": [],
+  "files": ["src/main.ts", "src/polyfills.ts"],
   "include": [],
   "references": [
     {

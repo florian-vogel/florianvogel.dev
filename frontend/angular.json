@@ -5,14 +5,21 @@
     "pomodoro": {
       "root": "apps/pomodoro",
       "architect": {
-        "serve": {
+        "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "outputPath": "dist/pomodoro",
-            "index": "",
-            "main": "",
+            "index": "apps/pomodoro/src/index.html",
+            "main": "apps/pomodoro/src/main.ts",
+            "polyfills": "apps/pomodoro/src/polyfills.ts",
             "tsConfig": "apps/pomodoro",
-            "watch": true
+            "styles": ["apps/pomodoro/src/styles.scss"]
+          }
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "pomodoro:build"
           }
         }
       }
