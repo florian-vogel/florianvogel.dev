@@ -6,9 +6,10 @@ import { NotesViewComponent } from './container/notes-view/notes-view.component'
 import { TodosViewComponent } from './container/todos-view/todos-view.component';
 import { SharedUiCommonModule } from '@florianvogel-dev/shared/ui-common';
 import { TimerStore } from './services/timerStore.service';
+import { SharedUtilCommonModule } from '@florianvogel-dev/shared/util-common';
 
 @NgModule({
-  imports: [CommonModule, SharedUiCommonModule],
+  imports: [CommonModule, SharedUiCommonModule, SharedUtilCommonModule],
   declarations: [
     MainpageComponent,
     TimerViewComponent,
